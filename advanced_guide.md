@@ -286,6 +286,33 @@ Example 2:
 compare: {header: 'content-type', expected: 'application/json'}
 ```
 
+## Extractor: cookie
+This extracts the value of a cookie from the Set-Cookie HTTP header from the response.
+Use only when you expect a response with Set-Cookie. **Cookie names are case-sensitive**.
+
+Example:
+```yaml
+- test:
+  - group: "CSRF Test"
+  - name: "Login"
+  - url: "/api/login/"
+  - method: "PUT"
+  - body: '{"username": "testuser","password": "testpass"}'
+  - headers: {'Content-Type': 'application/json'}
+  - expected_status: [200]
+  - extract_binds:
+      - 'csrftoken': {'cookie': 'csrftoken'}
+
+- test:
+  - group: 'CSRF Test'
+  - name: 'Add Widget'
+  - url: '/api/widget/'
+  - method: "POST"
+  - headers: {template: {'Content-Type': 'application/json', 'X-CSRFToken': '$csrftoken'}}
+  - body: '{"level": 1, "owner": "Joe Chip"}'
+  - expected_status: [201]
+```
+
 ## Extractor: raw_body
 This extracts the raw HTTP response body. 
 This value can be tested with comparisons or extract tests.
